@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// role: DONOR | STUDENT | ADMIN
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String   @default("DONOR")
+  bio          String?
+  school       String?
+  major        String?
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  donationsGiven      Donation[]
+  scholarshipsCreated Scholarship[] @relation("CreatedBy")
+  applications        Application[]
+  votes               Vote[]
+  comments            Comment[]
+}
+
+// status: OPEN | VOTING | FUNDED | CLOSED
+model Scholarship {
+  id           String    @id @default(cuid())
+  title        String
+  description  String
+  targetAmount Float
+  raisedAmount Float     @default(0)
+  school       String?
+  fieldOfStudy String?
+  creatorId    String
+  creator      User      @relation("CreatedBy", fields: [creatorId], references: [id])
+  status       String    @default("OPEN")
+  deadline     DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  donations    Donation[]
+  applications Application[]
+  comments     Comment[]
+}
+
+model Donation {
+  id            String      @id @default(cuid())
+  amount        Float
+  donorId       String
+  donor         User        @relation(fields: [donorId], references: [id])
+  scholarshipId String
+  scholarship   Scholarship @relation(fields: [scholarshipId], references: [id])
+  anonymous     Boolean     @default(false)
+  message       String?
+  createdAt     DateTime    @default(now())
+}
+
+// status: PENDING | UNDER_REVIEW | SELECTED | REJECTED
+model Application {
+  id            String      @id @default(cuid())
+  studentId     String
+  student       User        @relation(fields: [studentId], references: [id])
+  scholarshipId String
+  scholarship   Scholarship @relation(fields: [scholarshipId], references: [id])
+  essay         String
+  gpa           Float?
+  major         String
+  school        String
+  status        String      @default("PENDING")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  votes         Vote[]
+
+  @@unique([studentId, scholarshipId])
+}
+
+model Vote {
+  id            String      @id @default(cuid())
+  voterId       String
+  voter         User        @relation(fields: [voterId], references: [id])
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id])
+  createdAt     DateTime    @default(now())
+
+  @@unique([voterId, applicationId])
+}
+
+model Comment {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  scholarshipId String
+  scholarship   Scholarship @relation(fields: [scholarshipId], references: [id])
+  text          String
+  createdAt     DateTime    @default(now())
+}
