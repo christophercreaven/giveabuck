@@ -10,6 +10,8 @@ import { ScholarshipDetail } from './pages/ScholarshipDetail';
 import { CreateScholarship } from './pages/CreateScholarship';
 import { Dashboard } from './pages/Dashboard';
 import { Leaderboard } from './pages/Leaderboard';
+import { ForgotPassword } from './pages/ForgotPassword';
+import { ResetPassword } from './pages/ResetPassword';
 
 export default function App() {
   return (
@@ -28,6 +30,8 @@ export default function App() {
               <Route path="/scholarships/:id" element={<ScholarshipDetail />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
             </Routes>
           </main>
           <footer className="border-t border-gray-200 bg-white py-6 text-center text-sm text-gray-400">
